@@ -368,7 +368,6 @@ body > footer a:hover img {
   .free-hosting .pane:after {
     content: " ";
     float: right;
-    background: url(../img/footer-arrow.png) top left no-repeat;
     width: 73px;
     height: 186px;
     position: absolute;
@@ -1004,4 +1003,15 @@ code.option, code.flag, code.filter, code.output {
     .ribbon {
         display: inline;
     }
+}
+
+/* miscellaneous */
+
+.logo {
+    height: 80% !important;
+    width: 90% !important;
+    margin-top: 20px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    text-align: center !important;
 }

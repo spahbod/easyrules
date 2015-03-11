@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- *  Copyright (c) 2014, Mahmoud Ben Hassine (md.benhassine@gmail.com)
+ *  Copyright (c) 2015, Mahmoud Ben Hassine (mahmoud@benhassine.fr)
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -28,7 +28,7 @@ package org.easyrules.api;
  * Rules engine interface.
  * @param <R> The rule type
  *
- * @author Mahmoud Ben Hassine (md.benhassine@gmail.com)
+ * @author Mahmoud Ben Hassine (mahmoud@benhassine.fr)
  */
 public interface RulesEngine<R> {
 
@@ -43,23 +43,6 @@ public interface RulesEngine<R> {
      * @param rule the rule to unregister
      */
     void unregisterRule(R rule);
-
-    /**
-     * Register a rule in the rules engine registry.
-     * This method also registers the rule as a Jmx bean.
-     * The rule object <strong>must</strong> be JMX compliant.
-     *
-     * @param rule the rule to register
-     */
-    void registerJmxRule(R rule);
-
-    /**
-     * Unegister a rule from the rules engine registry.
-     * This method also unregisters the rule from MBean server.
-     *
-     * @param rule the rule to register
-     */
-    void unregisterJmxRule(R rule);
 
     /**
      * Fire all registered rules.

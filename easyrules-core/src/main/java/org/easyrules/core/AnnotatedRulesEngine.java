@@ -1,3 +1,27 @@
+/*
+ * The MIT License
+ *
+ *  Copyright (c) 2015, Mahmoud Ben Hassine (mahmoud@benhassine.fr)
+ *
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ *  of this software and associated documentation files (the "Software"), to deal
+ *  in the Software without restriction, including without limitation the rights
+ *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *  copies of the Software, and to permit persons to whom the Software is
+ *  furnished to do so, subject to the following conditions:
+ *
+ *  The above copyright notice and this permission notice shall be included in
+ *  all copies or substantial portions of the Software.
+ *
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ *  THE SOFTWARE.
+ */
+
 package org.easyrules.core;
 
 import org.easyrules.annotation.Action;
@@ -9,23 +33,26 @@ import org.easyrules.util.EasyRulesConstants;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
  * Annotated rules engine implementation.
  *
- * @author Mahmoud Ben Hassine (md.benhassine@gmail.com)
+ * @author Mahmoud Ben Hassine (mahmoud@benhassine.fr)
  */
 public class AnnotatedRulesEngine extends AbstractRulesEngine<Object> {
 
-    private static final Logger LOGGER = Logger.getLogger(EasyRulesConstants.LOGGER_NAME);
+    private static final Logger LOGGER = Logger.getLogger(AnnotatedRulesEngine.class.getName());
 
     private List<RuleBean> ruleBeans;
 
     /**
-     * Construct an annotated rules engine with default values.
+     * Constructs an annotated rules engine with default values.
      */
     public AnnotatedRulesEngine() {
         this(false, EasyRulesConstants.DEFAULT_RULE_PRIORITY_THRESHOLD);
@@ -63,63 +90,13 @@ public class AnnotatedRulesEngine extends AbstractRulesEngine<Object> {
     }
 
     @Override
-    public void registerJmxRule(Object rule) {
-        registerRule(rule);
-        registerJmxMBean(rule);
-    }
-
-    @Override
     public void registerRule(Object rule) {
 
-        //check if rule class is annotated with @Rule
-        if (!isRuleClassWellDefined(rule)) {
-            throw new IllegalArgumentException("Rule " + rule + " is not annotated with " + Rule.class.getClass());
-        }
+        checkRuleClass(rule);
+        checkConditionMethod(rule);
+        checkActionMethods(rule);
 
-        //check if condition method is well defined
-        Method conditionMethod = getConditionMethod(rule);
-        if (null == conditionMethod) {
-            throw new IllegalArgumentException("Rule " + rule + " does not have a public method annotated with " + Condition.class.getClass());
-        }
-
-        if (!isConditionMethodWellDefined(conditionMethod)) {
-            throw new IllegalArgumentException("Condition method " + conditionMethod + " defined in rule " + rule + " must be public, have no parameters and return boolean type.");
-        }
-
-        //check if action methods are well defined
-        List<ActionMethodBean> actionMethods = getActionMethodBeans(rule);
-        if (actionMethods.isEmpty()) {
-            throw new IllegalArgumentException("Rule " + rule + " does not have a public method annotated with " + Action.class.getClass());
-        }
-
-        for (ActionMethodBean actionMethodBean : actionMethods) {
-            Method actionMethod = actionMethodBean.getMethod();
-            if (!isActionMethodWellDefined(actionMethod)) {
-                throw new IllegalArgumentException("Action method " + actionMethod + " defined in rule " + rule + " must be public and have no parameters.");
-            }
-        }
-
-        //get rule priority for later use
-        List<Method> priorityMethods = getPriorityMethods(rule);
-        int priority = EasyRulesConstants.DEFAULT_RULE_PRIORITY;
-        // more than one method annotated with @Priority
-        if (priorityMethods.size() > 1) {
-            throw new IllegalArgumentException("Rule " + rule + " have more than one method annotated with " + Priority.class.getClass());
-        }
-        //exactly one method annotated with @Priority
-        if (!priorityMethods.isEmpty()) {
-            Method priorityMethod = priorityMethods.get(0);
-            if (!isPriorityMethodWellDefined(priorityMethod)) {
-                throw new IllegalArgumentException("Priority method " + priorityMethod + " defined in rule " + rule + " must be public, have no parameters and return integer type.");
-            }
-            try {
-                priority = (Integer) priorityMethod.invoke(rule);
-            } catch (IllegalAccessException e) {
-                throw new IllegalArgumentException("Unable to access method " + priorityMethod + " to get priority of rule " + rule, e);
-            } catch (InvocationTargetException e) {
-                throw new IllegalArgumentException("Unable to invoke method " + priorityMethod + " to get priority of rule " + rule, e);
-            }
-        }
+        int priority = getPriority(rule);
 
         ruleBeans.add(new RuleBean(priority, rule));
     }
@@ -131,15 +108,9 @@ public class AnnotatedRulesEngine extends AbstractRulesEngine<Object> {
             int priority = (Integer) getPriorityMethods(rule).get(0).invoke(rule);
             ruleBeans.remove(new RuleBean(priority, rule));
         } catch (Exception e) {
-            LOGGER.log(Level.WARNING, "Unable to unregister rule " + rule, e);
+            LOGGER.log(Level.WARNING, String.format("Unable to unregister rule '%s'", rule), e);
         }
 
-    }
-
-    @Override
-    public void unregisterJmxRule(Object rule) {
-        unregisterRule(rule);
-        unregisterJmxMBean(rule);
     }
 
     @Override
@@ -149,6 +120,8 @@ public class AnnotatedRulesEngine extends AbstractRulesEngine<Object> {
             LOGGER.warning("No rules registered! Nothing to apply.");
             return;
         }
+
+        logEngineParameters();
 
         //sort rules according to their priorities
         Collections.sort(ruleBeans);
@@ -170,22 +143,21 @@ public class AnnotatedRulesEngine extends AbstractRulesEngine<Object> {
 
                 int priority = ruleBean.getPriority();
                 if (priority > rulePriorityThreshold) {
-                    LOGGER.log(Level.INFO, "Rule priority threshold {0} exceeded at rule {1} (priority={2}), next applicable rules will be skipped.",
+                    LOGGER.log(Level.INFO, "Rule priority threshold {0} exceeded at rule ''{1}'' (priority={2}), next applicable rules will be skipped.",
                             new Object[]{rulePriorityThreshold, name, priority});
                     break;
                 }
 
                 Boolean shouldApplyRule = (Boolean) conditionMethod.invoke(rule);
 
-                //apply the rule
                 if (shouldApplyRule) {
-                    LOGGER.log(Level.INFO, "Rule {0} triggered.", new Object[]{name});
+                    LOGGER.log(Level.INFO, "Rule ''{0}'' triggered.", name);
                     try {
                         //execute all actions in the defined order
                         for (ActionMethodBean actionMethodBean : actionMethods) {
                             actionMethodBean.getMethod().invoke(rule);
                         }
-                        LOGGER.log(Level.INFO, "Rule {0} performed successfully.", new Object[]{name});
+                        LOGGER.log(Level.INFO, "Rule ''{0}'' performed successfully.", name);
 
                         if (skipOnFirstAppliedRule) {
                             LOGGER.info("Next rules will be skipped according to parameter skipOnFirstAppliedRule.");
@@ -193,13 +165,13 @@ public class AnnotatedRulesEngine extends AbstractRulesEngine<Object> {
                         }
 
                     } catch (Exception exception) {
-                        LOGGER.log(Level.SEVERE, "Rule '" + name + "' performed with error.", exception);
+                        LOGGER.log(Level.SEVERE, String.format("Rule '%s' performed with error.", name), exception);
                     }
                 }
             } catch (IllegalAccessException e) {
-                LOGGER.log(Level.SEVERE, "Unable to access method on rule " + rule, e);
+                LOGGER.log(Level.SEVERE, String.format("Unable to access method on rule '%s'", rule), e);
             } catch (InvocationTargetException e) {
-                LOGGER.log(Level.SEVERE, "Unable to invoke method on rule " + rule, e);
+                LOGGER.log(Level.SEVERE, String.format("Unable to invoke method on rule '%s'", rule), e);
             }
 
         }
@@ -215,6 +187,72 @@ public class AnnotatedRulesEngine extends AbstractRulesEngine<Object> {
     /*
      * Private Utility methods
      */
+
+    private void checkRuleClass(Object rule) {
+        //check if the rule class is annotated with @Rule
+        if (!isRuleClassWellDefined(rule)) {
+            throw new IllegalArgumentException(String.format("Rule '%s' is not annotated with '%s'", rule, Rule.class.getClass()));
+        }
+    }
+
+    private void checkConditionMethod(Object rule) {
+        //check if condition method is well defined
+        Method conditionMethod = getConditionMethod(rule);
+        if (null == conditionMethod) {
+            throw new IllegalArgumentException(String.format("Rule '%s' does not have a public method annotated with '%s'", rule, Condition.class.getClass()));
+        }
+
+        if (!isConditionMethodWellDefined(conditionMethod)) {
+            throw new IllegalArgumentException(String.format("Condition method '%s' defined in rule '%s' must be public, have no parameters and return boolean type.", conditionMethod, rule));
+        }
+    }
+
+    private void checkActionMethods(Object rule) {
+        //check if action methods are well defined
+        List<ActionMethodBean> actionMethods = getActionMethodBeans(rule);
+        if (actionMethods.isEmpty()) {
+            throw new IllegalArgumentException(String.format("Rule '%s' does not have a public method annotated with '%s'", rule, Action.class.getClass()));
+        }
+
+        for (ActionMethodBean actionMethodBean : actionMethods) {
+            Method actionMethod = actionMethodBean.getMethod();
+            if (!isActionMethodWellDefined(actionMethod)) {
+                throw new IllegalArgumentException(String.format("Action method '%s' defined in rule '%s' must be public and have no parameters.", actionMethod, rule));
+            }
+        }
+    }
+
+    private int getPriority(Object rule) {
+
+        int priority = EasyRulesConstants.DEFAULT_RULE_PRIORITY;
+
+        List<Method> priorityMethods = getPriorityMethods(rule);
+
+        checkRulePriority(rule, priorityMethods);
+
+        //exactly one method annotated with @Priority
+        if (!priorityMethods.isEmpty()) {
+            Method priorityMethod = priorityMethods.get(0);
+            if (!isPriorityMethodWellDefined(priorityMethod)) {
+                throw new IllegalArgumentException(String.format("Priority method '%s' defined in rule '%s' must be public, have no parameters and return integer type.", priorityMethod, rule));
+            }
+            try {
+                priority = (Integer) priorityMethod.invoke(rule);
+            } catch (IllegalAccessException e) {
+                throw new IllegalArgumentException(String.format("Unable to access method '%s' to get priority of rule '%s'", priorityMethod, rule), e);
+            } catch (InvocationTargetException e) {
+                throw new IllegalArgumentException(String.format("Unable to invoke method '%s' to get priority of rule '%s'", priorityMethod, rule), e);
+            }
+        }
+        return priority;
+    }
+
+    private void checkRulePriority(Object rule, List<Method> priorityMethods) {
+        // more than one method annotated with @Priority
+        if (priorityMethods.size() > 1) {
+            throw new IllegalArgumentException(String.format("Rule '%s' has more than one method annotated with '%s'", rule, Priority.class.getClass()));
+        }
+    }
 
     private Method getConditionMethod(Object rule) {
         Method[] methods = rule.getClass().getMethods();

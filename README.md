@@ -12,17 +12,71 @@ Easy Rules is a simple yet powerful Java Rules Engine providing the following fe
 
  * Dynamic rule reconfiguration at runtime using JMX
 
-## Presentation
-
-You can find some slides about Easy Rules on [speaker deck][].
-
 ## Documentation
 
-All Easy Rules documentation can be found here : [http://www.easyrules.org][]
+All Easy Rules documentation can be found here : [http://www.easyrules.org](http://www.easyrules.org)
+
+## Presentation
+
+You can find some slides about Easy Rules on [speaker deck](https://speakerdeck.com/benas/easy-rules).
+
+## Continuous integration
+[Jenkins job @ cloudbees.com](https://buildhive.cloudbees.com/job/benas/job/easy-rules/)
+
+## Current version
+
+* The current stable version is 1.3.0: [![Build Status](https://buildhive.cloudbees.com/job/benas/job/easy-rules/badge/icon)](https://buildhive.cloudbees.com/job/benas/job/easy-rules/)
+* The current development version is 1.3.1-SNAPSHOT
+
+## Agile Board
+[Backlog items @ waffle.io](https://waffle.io/benas/easy-rules)
+
+## Contribution
+
+You are welcome to contribute to the project with pull requests on GitHub.
+
+If you believe you found a bug, please use the [issue tracker](https://github.com/benas/easy-rules/issues).
+
+It would be great to attach a JUnit test that fails and it would be awesome to send a pull request with a patch that fixes the bug!
+
+For any further question, you can use the [Gitter](https://gitter.im/benas/easy-rules) channel: [![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/benas/easy-rules?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
+## Awesome contributors
+
+* [Becca Gaspard](https://github.com/beccagaspard)
+* [Drem Darios](https://github.com/drem-darios)
+
+Thank you all for your contributions!
+
+## Credits
+
+Many thanks to [YourKit, LLC](https://www.yourkit.com/) for providing a free license of [YourKit Java Profiler](https://www.yourkit.com/java/profiler/index.jsp) to kindly support the development of Easy Rules.
+![YourKit Java Profiler](https://www.yourkit.com/images/yklogo.png)
 
 ## License
-Easy Rules is released under the [MIT License][].
+Easy Rules is released under the [MIT License](http://opensource.org/licenses/mit-license.php/):
 
-[speaker deck]: https://speakerdeck.com/benas/easy-rules
-[http://www.easyrules.org]: http://www.easyrules.org
-[MIT License]: http://opensource.org/licenses/mit-license.php/
+```
+The MIT License (MIT)
+
+Copyright (c) 2015 Mahmoud Ben Hassine (mahmoud@benhassine.fr)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+```
+

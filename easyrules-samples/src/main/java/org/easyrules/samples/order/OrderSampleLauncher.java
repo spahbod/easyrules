@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- *  Copyright (c) 2014, Mahmoud Ben Hassine (md.benhassine@gmail.com)
+ *  Copyright (c) 2014, Mahmoud Ben Hassine (mahmoud@benhassine.fr)
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -24,14 +24,14 @@
 
 package org.easyrules.samples.order;
 
-import org.easyrules.core.DefaultRulesEngine;
+import org.easyrules.jmx.DefaultJMXRulesEngine;
 
 import java.util.Scanner;
 
 /**
  * Launcher class of the order sample.
  *
- * @author Mahmoud Ben Hassine (md.benhassine@gmail.com)
+ * @author Mahmoud Ben Hassine (mahmoud@benhassine.fr)
  */
 public class OrderSampleLauncher {
 
@@ -56,8 +56,8 @@ public class OrderSampleLauncher {
         /**
          * Create a default rules engine and register the business rule
          */
-        DefaultRulesEngine rulesEngine = new DefaultRulesEngine();
-        rulesEngine.registerJmxRule(suspectOrderRule);
+        DefaultJMXRulesEngine rulesEngine = new DefaultJMXRulesEngine();
+        rulesEngine.registerJMXRule(suspectOrderRule);
 
         /**
          * Fire rules

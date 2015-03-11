@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- *  Copyright (c) 2014, Mahmoud Ben Hassine (md.benhassine@gmail.com)
+ *  Copyright (c) 2015, Mahmoud Ben Hassine (mahmoud@benhassine.fr)
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -24,17 +24,14 @@
 
 package org.easyrules.api;
 
-import javax.management.MXBean;
 
 /**
- * Abstraction for a rule that can be fired by the rules engine.<br/>
+ * Abstraction for a rule that can be fired by the rules engine.
  *
- * Rules are registered in the rules engine registry and must have a <strong>unique</strong> name.<br/>
+ * Rules are registered in the rules engine registry and must have a <strong>unique</strong> name.
  *
- * @author Mahmoud Ben Hassine (md.benhassine@gmail.com)
+ * @author Mahmoud Ben Hassine (mahmoud@benhassine.fr)
  */
-
-@MXBean
 public interface Rule {
 
     /**

@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- *  Copyright (c) 2014, Mahmoud Ben Hassine (md.benhassine@gmail.com)
+ *  Copyright (c) 2015, Mahmoud Ben Hassine (mahmoud@benhassine.fr)
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -28,12 +28,12 @@ import org.easyrules.api.Rule;
 import org.easyrules.util.EasyRulesConstants;
 
 /**
- * Basic rule implementation class that provides common methods.<br/>
+ * Basic rule implementation class that provides common methods.
  *
  * You can extend this class and override {@link BasicRule#evaluateConditions()} and {@link BasicRule#performActions()}
  * to provide rule conditions and actions logic.
  *
- * @author Mahmoud Ben Hassine (md.benhassine@gmail.com)
+ * @author Mahmoud Ben Hassine (mahmoud@benhassine.fr)
  */
 public class BasicRule implements Rule, Comparable<Rule> {
 
@@ -136,7 +136,7 @@ public class BasicRule implements Rule, Comparable<Rule> {
         if (priority < rule.getPriority()) {
             return -1;
         } else if (priority == rule.getPriority()) {
-            return 0;
+            return name.compareTo(rule.getName());
         } else {
             return 1;
         }

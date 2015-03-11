@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- *  Copyright (c) 2014, Mahmoud Ben Hassine (md.benhassine@gmail.com)
+ *  Copyright (c) 2015, Mahmoud Ben Hassine (mahmoud@benhassine.fr)
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -32,17 +32,17 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Default {@link org.easyrules.api.RulesEngine} implementation.<br/>
+ * Default {@link org.easyrules.api.RulesEngine} implementation.
  *
  * This implementation handles a set of rules with unique name.
  *
  * Rules are fired according to their natural order which is priority by default.
  *
- * @author Mahmoud Ben Hassine (md.benhassine@gmail.com)
+ * @author Mahmoud Ben Hassine (mahmoud@benhassine.fr)
  */
 public class DefaultRulesEngine extends AbstractRulesEngine<Rule> {
 
-    private static final Logger LOGGER = Logger.getLogger(EasyRulesConstants.LOGGER_NAME);
+    private static final Logger LOGGER = Logger.getLogger(DefaultRulesEngine.class.getName());
 
     /**
      * Construct a default rules engine with default values.
@@ -86,28 +86,39 @@ public class DefaultRulesEngine extends AbstractRulesEngine<Rule> {
             return;
         }
 
-        //resort rules in case priorities were modified via JMX
-        rules = new TreeSet<Rule>(rules);
+        logEngineParameters();
+
+        applyRules();
+
+    }
+
+    protected void applyRules() {
 
         for (Rule rule : rules) {
 
-            if (rule.getPriority() > rulePriorityThreshold) {
-                LOGGER.log(Level.INFO, "Rule priority threshold {0} exceeded at rule {1} (priority={2}), next applicable rules will be skipped.",
-                        new Object[] {rulePriorityThreshold, rule.getName(), rule.getPriority()});
+            final String ruleName = rule.getName();
+
+            final int rulePriority = rule.getPriority();
+            if (rulePriority > rulePriorityThreshold) {
+                LOGGER.log(Level.INFO,
+                        "Rule priority threshold {0} exceeded at rule ''{1}'' (priority={2}), next applicable rules will be skipped.",
+                        new Object[] {rulePriorityThreshold, ruleName, rulePriority});
                 break;
             }
 
-            if (rule.evaluateConditions()) {
-                LOGGER.log(Level.INFO, "Rule {0} triggered.", new Object[]{rule.getName()});
+            final boolean shouldApplyRule = rule.evaluateConditions();
+            if (shouldApplyRule) {
+                LOGGER.log(Level.INFO, "Rule ''{0}'' triggered.", ruleName);
                 try {
                     rule.performActions();
-                    LOGGER.log(Level.INFO, "Rule {0} performed successfully.", new Object[]{rule.getName()});
+                    LOGGER.log(Level.INFO, "Rule ''{0}'' performed successfully.", ruleName);
+
                     if (skipOnFirstAppliedRule) {
                         LOGGER.info("Next rules will be skipped according to parameter skipOnFirstAppliedRule.");
                         break;
                     }
                 } catch (Exception exception) {
-                    LOGGER.log(Level.SEVERE, "Rule '" + rule.getName() + "' performed with error.", exception);
+                    LOGGER.log(Level.SEVERE, String.format("Rule '%s' performed with error.", ruleName), exception);
                 }
             }
 

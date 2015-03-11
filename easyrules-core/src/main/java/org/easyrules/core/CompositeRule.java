@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- *  Copyright (c) 2014, Mahmoud Ben Hassine (md.benhassine@gmail.com)
+ *  Copyright (c) 2015, Mahmoud Ben Hassine (mahmoud@benhassine.fr)
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -27,16 +27,16 @@ package org.easyrules.core;
 import org.easyrules.api.Rule;
 import org.easyrules.util.EasyRulesConstants;
 
-import java.util.Set;
 import java.util.HashSet;
+import java.util.Set;
 
 /**
- * Class representing a composite rule composed of a set of rules.<br/>
+ * Class representing a composite rule composed of a set of rules.
  *
  * A composite rule is triggered if <strong>ALL</strong> conditions of its composing rules are satisfied.
  * When a composite rule is applied, actions of <strong>ALL</strong> composing rules are performed.
  *
- * @author Mahmoud Ben Hassine (md.benhassine@gmail.com)
+ * @author Mahmoud Ben Hassine (mahmoud@benhassine.fr)
  */
 public class CompositeRule extends BasicRule {
 
