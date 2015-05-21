@@ -25,16 +25,19 @@
 package org.easyrules.core;
 
 import org.easyrules.api.Rule;
-import org.easyrules.util.EasyRulesConstants;
+import org.easyrules.util.Utils;
+
+import javax.management.MXBean;
 
 /**
  * Basic rule implementation class that provides common methods.
  *
- * You can extend this class and override {@link BasicRule#evaluateConditions()} and {@link BasicRule#performActions()}
+ * You can extend this class and override {@link BasicRule#evaluate()} and {@link BasicRule#execute()}
  * to provide rule conditions and actions logic.
  *
  * @author Mahmoud Ben Hassine (mahmoud@benhassine.fr)
  */
+@MXBean
 public class BasicRule implements Rule, Comparable<Rule> {
 
     /**
@@ -50,20 +53,18 @@ public class BasicRule implements Rule, Comparable<Rule> {
     /**
      * Rule priority.
      */
-    private int priority;
+    protected int priority;
 
     public BasicRule() {
-        this(EasyRulesConstants.DEFAULT_RULE_NAME,
-                EasyRulesConstants.DEFAULT_RULE_DESCRIPTION,
-                EasyRulesConstants.DEFAULT_RULE_PRIORITY);
+        this(Utils.DEFAULT_RULE_NAME, Utils.DEFAULT_RULE_DESCRIPTION, Utils.DEFAULT_RULE_PRIORITY);
     }
 
     public BasicRule(final String name) {
-        this(name, EasyRulesConstants.DEFAULT_RULE_DESCRIPTION, EasyRulesConstants.DEFAULT_RULE_PRIORITY);
+        this(name, Utils.DEFAULT_RULE_DESCRIPTION, Utils.DEFAULT_RULE_PRIORITY);
     }
 
     public BasicRule(final String name, final String description) {
-        this(name, description, EasyRulesConstants.DEFAULT_RULE_PRIORITY);
+        this(name, description, Utils.DEFAULT_RULE_PRIORITY);
     }
 
     public BasicRule(final String name, final String description, final int priority) {
@@ -75,14 +76,14 @@ public class BasicRule implements Rule, Comparable<Rule> {
     /**
      * {@inheritDoc}
      */
-    public boolean evaluateConditions() {
+    public boolean evaluate() {
         return false;
     }
 
     /**
      * {@inheritDoc}
      */
-    public void performActions() throws Exception {
+    public void execute() throws Exception {
         //no op
     }
 
@@ -115,15 +116,20 @@ public class BasicRule implements Rule, Comparable<Rule> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        Rule rule = (Rule) o;
+        BasicRule basicRule = (BasicRule) o;
 
-        return name.equals(rule.getName());
+        if (priority != basicRule.priority) return false;
+        if (!name.equals(basicRule.name)) return false;
+        return !(description != null ? !description.equals(basicRule.description) : basicRule.description != null);
 
     }
 
     @Override
     public int hashCode() {
-        return name.hashCode();
+        int result = name.hashCode();
+        result = 31 * result + (description != null ? description.hashCode() : 0);
+        result = 31 * result + priority;
+        return result;
     }
 
     @Override
@@ -135,10 +141,10 @@ public class BasicRule implements Rule, Comparable<Rule> {
     public int compareTo(final Rule rule) {
         if (priority < rule.getPriority()) {
             return -1;
-        } else if (priority == rule.getPriority()) {
-            return name.compareTo(rule.getName());
-        } else {
+        } else if (priority > rule.getPriority()) {
             return 1;
+        } else {
+            return name.compareTo(rule.getName());
         }
     }
 

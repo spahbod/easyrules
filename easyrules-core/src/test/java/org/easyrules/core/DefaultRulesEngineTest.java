@@ -1,80 +1,146 @@
 package org.easyrules.core;
 
-import org.easyrules.api.Rule;
+import org.easyrules.annotation.Action;
+import org.easyrules.annotation.Condition;
+import org.easyrules.annotation.Priority;
+import org.easyrules.annotation.Rule;
 import org.easyrules.api.RulesEngine;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InOrder;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.easyrules.core.RulesEngineBuilder.aNewRulesEngine;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.*;
 
 /**
  * Test class for {@link org.easyrules.core.DefaultRulesEngine}.
  *
  * @author Mahmoud Ben Hassine (mahmoud@benhassine.fr)
  */
+@RunWith(MockitoJUnitRunner.class)
 public class DefaultRulesEngineTest {
 
-    @Test
-    public void testRulesWithDifferentNameAndDescriptionButWithSamePriority() throws Exception {
+    @Mock
+    private BasicRule rule, anotherRule;
 
-        SimpleRule rule1 = new SimpleRule("rule 1", "description 1", 0);
-        SimpleRule rule2 = new SimpleRule("rule 2", "description 2", 0);
-        SimpleRule rule3 = new SimpleRule("rule 3", "description 3", 1);
+    private AnnotatedRule annotatedRule;
 
-        RulesEngine<Rule> engine = new DefaultRulesEngine();
-        engine.registerRule(rule1);
-        engine.registerRule(rule2);
-        engine.registerRule(rule3);
-        engine.fireRules();
+    private RulesEngine rulesEngine;
 
-        assertThat(rule1.isExecuted()).isTrue();
-        assertThat(rule2.isExecuted()).isTrue();
-        assertThat(rule3.isExecuted()).isTrue();
-
+    @Before
+    public void setup() {
+        when(rule.getName()).thenReturn("r");
+        when(rule.getDescription()).thenReturn("d");
+        when(rule.getPriority()).thenReturn(1);
+        annotatedRule = new AnnotatedRule();
+        rulesEngine = aNewRulesEngine().build();
     }
 
     @Test
-    public void testRulesWithSameNameAndDescriptionAndPriority() throws Exception {
+    public void whenConditionIsTrue_thenActionShouldBeExecuted() throws Exception {
+        when(rule.evaluate()).thenReturn(true);
+        rulesEngine.registerRule(rule);
 
-        SimpleRule rule1 = new SimpleRule("rule 1", "description 1", 0);
-        SimpleRule rule2 = new SimpleRule("rule 1", "description 1", 0);
+        rulesEngine.fireRules();
 
-        RulesEngine<Rule> engine = new DefaultRulesEngine();
-        engine.registerRule(rule1);
-        engine.registerRule(rule2);
-        engine.fireRules();
-
-        assertThat(rule1.isExecuted()).isTrue();
-        assertThat(rule2.isExecuted()).isFalse();
-
+        verify(rule).execute();
     }
 
-    class SimpleRule extends BasicRule {
+    @Test
+    public void whenConditionIsFalse_thenActionShouldNotBeExecuted() throws Exception {
+        when(rule.evaluate()).thenReturn(false);
+        rulesEngine.registerRule(rule);
 
-        /**
-         * Has the rule been executed? .
-         */
-        protected boolean executed;
+        rulesEngine.fireRules();
 
-        public SimpleRule(String name, String description) {
-            super(name, description);
-        }
+        verify(rule, never()).execute();
+    }
 
-        public SimpleRule(String name, String description, int priority) {
-            super(name, description, priority);
-        }
+    @Test
+    public void rulesMustBeTriggeredInTheirNaturalOrder() throws Exception {
+        when(rule.evaluate()).thenReturn(true);
+        when(anotherRule.evaluate()).thenReturn(true);
+        when(rule.compareTo(anotherRule)).thenReturn(-1);
+        when(anotherRule.compareTo(rule)).thenReturn(1);
+        rulesEngine.registerRule(rule);
+        rulesEngine.registerRule(anotherRule);
 
-        @Override
-        public boolean evaluateConditions() {
+        rulesEngine.fireRules();
+
+        InOrder inOrder = inOrder(rule, anotherRule);
+        inOrder.verify(rule).execute();
+        inOrder.verify(anotherRule).execute();
+    }
+
+    @Test
+    public void actionsMustBeExecutedInTheDefinedOrder() {
+        rulesEngine.registerRule(annotatedRule);
+        rulesEngine.fireRules();
+        assertEquals("012", annotatedRule.getActionSequence());
+    }
+
+    @Test
+    public void annotatedRulesAndNonAnnotatedRulesShouldBeUsableTogether() throws Exception {
+        when(rule.evaluate()).thenReturn(true);
+        rulesEngine.registerRule(rule);
+        rulesEngine.registerRule(annotatedRule);
+
+        rulesEngine.fireRules();
+
+        verify(rule).execute();
+        assertThat(annotatedRule.isExecuted()).isTrue();
+    }
+
+    @After
+    public void clearRules() {
+        rulesEngine.clearRules();
+    }
+
+    @Rule(name = "myRule", description = "my rule description")
+    public class AnnotatedRule {
+
+        private boolean executed;
+
+        private String actionSequence = "";
+
+        @Condition
+        public boolean when() {
             return true;
         }
 
-        @Override
-        public void performActions() throws Exception {
+        @Action
+        public void then0() throws Exception {
+            actionSequence += "0";
+        }
+
+        @Action(order = 1)
+        public void then1() throws Exception {
+            actionSequence += "1";
+        }
+
+        @Action(order = 2)
+        public void then2() throws Exception {
+            actionSequence += "2";
             executed = true;
+        }
+
+        @Priority
+        public int getPriority() {
+            return 0;
         }
 
         public boolean isExecuted() {
             return executed;
+        }
+
+        public String getActionSequence() {
+            return actionSequence;
         }
 
     }

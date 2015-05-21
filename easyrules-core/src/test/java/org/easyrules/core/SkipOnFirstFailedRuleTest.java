@@ -31,17 +31,15 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
- * Test class of rules priority comparison.
+ * Test class of "skip on first failed rule" parameter of Easy Rules default engine.
  *
  * @author Mahmoud Ben Hassine (mahmoud@benhassine.fr)
  */
 @RunWith(MockitoJUnitRunner.class)
-public class RulePriorityThresholdTest {
+public class SkipOnFirstFailedRuleTest {
 
     @Mock
     private BasicRule rule1, rule2;
@@ -49,25 +47,18 @@ public class RulePriorityThresholdTest {
     private RulesEngine rulesEngine;
 
     @Before
-    public void setup() {
+    public void setup() throws Exception {
 
-        when(rule1.getName()).thenReturn("r1");
-        when(rule1.getPriority()).thenReturn(1);
-        when(rule1.evaluate()).thenReturn(true);
-        when(rule1.compareTo(rule2)).thenReturn(-1);
-
-        when(rule2.getName()).thenReturn("r2");
-        when(rule2.getPriority()).thenReturn(2);
-        when(rule2.evaluate()).thenReturn(true);
-        when(rule2.compareTo(rule1)).thenReturn(1);
+        setUpRule1();
+        setUpRule2();
 
         rulesEngine = RulesEngineBuilder.aNewRulesEngine()
-                .withRulePriorityThreshold(1)
+                .withSkipOnFirstFailedRule(true)
                 .build();
     }
 
     @Test
-    public void rulesThatExceedPriorityThresholdMustNotBeExecuted() throws Exception {
+    public void testSkipOnFirstFailedRule() throws Exception {
 
         rulesEngine.registerRule(rule1);
         rulesEngine.registerRule(rule2);
@@ -77,9 +68,25 @@ public class RulePriorityThresholdTest {
         //Rule 1 should be executed
         verify(rule1).execute();
 
-        //Rule 2 should be skipped since its priority (2) exceeds priority threshold (1)
+        //Rule 2 should be skipped since Rule 1 has failed
         verify(rule2, never()).execute();
 
+    }
+
+    private void setUpRule1() throws Exception {
+        when(rule1.getName()).thenReturn("r1");
+        when(rule1.getPriority()).thenReturn(1);
+        when(rule1.evaluate()).thenReturn(true);
+        when(rule1.compareTo(rule2)).thenReturn(-1);
+        final Exception exception = new Exception("fatal error!");
+        doThrow(exception).when(rule1).execute();
+    }
+
+    private void setUpRule2() {
+        when(rule2.getName()).thenReturn("r2");
+        when(rule2.getPriority()).thenReturn(2);
+        when(rule2.evaluate()).thenReturn(true);
+        when(rule2.compareTo(rule1)).thenReturn(1);
     }
 
 }

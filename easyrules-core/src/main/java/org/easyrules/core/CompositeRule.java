@@ -25,10 +25,10 @@
 package org.easyrules.core;
 
 import org.easyrules.api.Rule;
-import org.easyrules.util.EasyRulesConstants;
+import org.easyrules.util.Utils;
 
-import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Class representing a composite rule composed of a set of rules.
@@ -46,17 +46,20 @@ public class CompositeRule extends BasicRule {
     protected Set<Rule> rules;
 
     public CompositeRule() {
-        this(EasyRulesConstants.DEFAULT_RULE_NAME,
-                EasyRulesConstants.DEFAULT_RULE_DESCRIPTION);
+        this(Utils.DEFAULT_RULE_NAME, Utils.DEFAULT_RULE_DESCRIPTION, Utils.DEFAULT_RULE_PRIORITY);
     }
 
     public CompositeRule(final String name) {
-        this(name, EasyRulesConstants.DEFAULT_RULE_DESCRIPTION);
+        this(name, Utils.DEFAULT_RULE_DESCRIPTION, Utils.DEFAULT_RULE_PRIORITY);
     }
 
     public CompositeRule(final String name, final String description) {
-        super(name, description);
-        rules = new HashSet<Rule>();
+        this(name, description, Utils.DEFAULT_RULE_PRIORITY);
+    }
+
+    public CompositeRule(final String name, final String description, final int priority) {
+        super(name, description, priority);
+        rules = new TreeSet<Rule>();
     }
 
     /**
@@ -64,10 +67,10 @@ public class CompositeRule extends BasicRule {
      * @return true if <strong>ALL</strong> conditions of composing rules are evaluated to true
      */
     @Override
-    public boolean evaluateConditions() {
+    public boolean evaluate() {
         if (!rules.isEmpty()) {
             for (Rule rule : rules) {
-                if (!rule.evaluateConditions()) {
+                if (!rule.evaluate()) {
                     return false;
                 }
             }
@@ -83,9 +86,9 @@ public class CompositeRule extends BasicRule {
      * @throws Exception thrown if an exception occurs during actions performing
      */
     @Override
-    public void performActions() throws Exception {
+    public void execute() throws Exception {
         for (Rule rule : rules) {
-            rule.performActions();
+            rule.execute();
         }
     }
 
