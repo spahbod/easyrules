@@ -1,32 +1,32 @@
 ## What is Easy Rules?
 
-Easy Rules is a simple yet powerful Java Rules Engine providing the following features :
+Easy Rules is a simple yet powerful Java rules engine providing the following features:
 
- * Lightweight framework and easy to learn API
+ * Lightweight library and easy to learn API
 
  * POJO based development with annotation programming model
 
- * Useful abstractions to define business rules and apply them easily using Java
+ * Useful abstractions to define business rules and apply them easily with Java
 
  * The ability to create composite rules from primitive ones
 
- * Dynamic rule reconfiguration at runtime using JMX
+ * Dynamic rule configuration at runtime using JMX
 
 ## Documentation
 
-All Easy Rules documentation can be found here : [http://www.easyrules.org](http://www.easyrules.org)
+The online documentation can be found here : [http://www.easyrules.org](http://www.easyrules.org)
 
 ## Presentation
 
 You can find some slides about Easy Rules on [speaker deck](https://speakerdeck.com/benas/easy-rules).
 
 ## Continuous integration
-[Jenkins job @ cloudbees.com](https://buildhive.cloudbees.com/job/benas/job/easy-rules/)
+[Jenkins job @ CloudBees.com](https://buildhive.cloudbees.com/job/benas/job/easy-rules/)
 
 ## Current version
 
-* The current stable version is 1.3.0: [![Build Status](https://buildhive.cloudbees.com/job/benas/job/easy-rules/badge/icon)](https://buildhive.cloudbees.com/job/benas/job/easy-rules/)
-* The current development version is 2.0.0-SNAPSHOT. In order to use snapshot versions, you need to add the following maven repository in your `pom.xml`:
+* The current stable version is 2.1.0: [![Build Status](https://buildhive.cloudbees.com/job/benas/job/easy-rules/badge/icon)](https://buildhive.cloudbees.com/job/benas/job/easy-rules/)
+* The current development version is 2.1.1-SNAPSHOT. In order to use snapshot versions, you need to add the following maven repository in your `pom.xml`:
 
 ```xml
 <repositories>
@@ -38,29 +38,42 @@ You can find some slides about Easy Rules on [speaker deck](https://speakerdeck.
 ```
 
 ## Agile Board
-[Backlog items @ waffle.io](https://waffle.io/benas/easy-rules)
+[Backlog items @ Waffle.io](https://waffle.io/benas/easy-rules)
 
 ## Contribution
 
 You are welcome to contribute to the project with pull requests on GitHub.
 
-If you believe you found a bug, please use the [issue tracker](https://github.com/benas/easy-rules/issues).
+If you believe you found a bug, please use the [issue tracker](https://github.com/benas/easy-rules/issues). 
+It would be great to attach a JUnit test that fails with the current version.
+And you would be an awesome contributor if you send a pull request with a patch that fixes the bug!
 
-It would be great to attach a JUnit test that fails and it would be awesome to send a pull request with a patch that fixes the bug!
-
-For any further question, you can use the [Gitter](https://gitter.im/benas/easy-rules) channel: [![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/benas/easy-rules?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+For any further question, you can use the [Gitter](https://gitter.im/benas/easy-rules) channel of the project: [![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/benas/easy-rules?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 ## Awesome contributors
 
-* [Becca Gaspard](https://github.com/beccagaspard)
-* [Drem Darios](https://github.com/drem-darios)
+* [beccagaspard](https://github.com/beccagaspard)
+* [drem-darios](https://github.com/drem-darios)
+* [gs-spadmanabhan](https://github.com/gs-spadmanabhan)
+* [mrcritical](https://github.com/mrcritical)
+* [vinoct6](https://github.com/vinoct6)
 
 Thank you all for your contributions!
 
 ## Credits
 
+### Yourkit
+
 Many thanks to [YourKit, LLC](https://www.yourkit.com/) for providing a free license of [YourKit Java Profiler](https://www.yourkit.com/java/profiler/index.jsp) to kindly support the development of Easy Rules.
+
 ![YourKit Java Profiler](https://www.yourkit.com/images/yklogo.png)
+
+### CloudBees
+
+Many thanks to [CloudBees](https://www.cloudbees.com/) for providing a free [Jenkins](http://jenkins-ci.org/) service to support continuous integration for open source projects.
+
+![CloudBees](https://www.cloudbees.com/sites/default/files/styles/large/public/Button-Powered-by-CB.png)
+
 
 ## License
 Easy Rules is released under the [MIT License](http://opensource.org/licenses/mit-license.php/):

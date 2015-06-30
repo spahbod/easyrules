@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- *  Copyright (c) 2014, Mahmoud Ben Hassine (mahmoud@benhassine.fr)
+ *  Copyright (c) 2015, Mahmoud Ben Hassine (mahmoud@benhassine.fr)
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -22,48 +22,7 @@
  *  THE SOFTWARE.
  */
 
-package org.easyrules.samples.helloworld;
-
-import org.easyrules.api.RulesEngine;
-
-import java.util.Scanner;
-
-import static org.easyrules.core.RulesEngineBuilder.aNewRulesEngine;
-
 /**
- * Launcher class of the Hello World sample.
- *
- * @author Mahmoud Ben Hassine (mahmoud@benhassine.fr)
+ * This package contains Spring support classes.
  */
-public class HelloWorldSampleLauncher {
-
-    public static void main(String[] args) {
-
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("Are you a friend of duke? [yes/no]:");
-        String input = scanner.nextLine();
-
-        /**
-         * Declare the rule
-         */
-        HelloWorldRule helloWorldRule = new HelloWorldRule();
-
-        /**
-         * Set business data to operate on
-         */
-        helloWorldRule.setInput(input.trim());
-
-        /**
-         * Create a rules engine and register the business rule
-         */
-        RulesEngine rulesEngine = aNewRulesEngine().build();
-
-        rulesEngine.registerRule(helloWorldRule);
-
-        /**
-         * Fire rules
-         */
-        rulesEngine.fireRules();
-
-    }
-}
+package org.easyrules.spring;

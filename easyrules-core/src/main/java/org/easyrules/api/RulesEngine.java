@@ -32,6 +32,13 @@ package org.easyrules.api;
 public interface RulesEngine {
 
     /**
+     * Return the rules engine name.
+     *
+     * @return The rule engine name
+     */
+    String getName();
+
+    /**
      * Register a rule in the rules engine registry.
      * @param rule the rule to register
      */

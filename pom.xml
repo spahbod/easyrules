@@ -10,12 +10,15 @@
 
     <groupId>org.easyrules</groupId>
     <artifactId>easyrules</artifactId>
-    <version>2.0.1-SNAPSHOT</version>
+    <version>2.1.1-SNAPSHOT</version>
 
     <modules>
+        <module>easyrules-archetype</module>
         <module>easyrules-core</module>
         <module>easyrules-samples</module>
         <module>easyrules-jmx</module>
+        <module>easyrules-quartz</module>
+        <module>easyrules-spring</module>
     </modules>
 
     <packaging>pom</packaging>
@@ -29,14 +32,16 @@
         <junit.version>4.12</junit.version>
         <assertj.version>1.7.1</assertj.version>
         <mockito.version>1.10.19</mockito.version>
-        <maven-checkstyle-plugin.version>2.13</maven-checkstyle-plugin.version>
-        <maven-pmd-plugin.version>3.3</maven-pmd-plugin.version>
-        <findbugs-maven-plugin.version>3.0.0</findbugs-maven-plugin.version>
-        <cobertura-maven-plugin.version>2.6</cobertura-maven-plugin.version>
-        <maven-release-plugin.version>2.5.1</maven-release-plugin.version>
-        <maven-compiler-plugin.version>3.2</maven-compiler-plugin.version>
-        <maven-surefire-plugin.version>2.18</maven-surefire-plugin.version>
-        <maven-javadoc-plugin.version>2.10.1</maven-javadoc-plugin.version>
+        <quartz.version>2.2.1</quartz.version>
+        <spring.version>3.2.13.RELEASE</spring.version>
+        <maven-checkstyle-plugin.version>2.15</maven-checkstyle-plugin.version>
+        <maven-pmd-plugin.version>3.4</maven-pmd-plugin.version>
+        <findbugs-maven-plugin.version>3.0.1</findbugs-maven-plugin.version>
+        <cobertura-maven-plugin.version>2.7</cobertura-maven-plugin.version>
+        <maven-release-plugin.version>2.5.2</maven-release-plugin.version>
+        <maven-compiler-plugin.version>3.3</maven-compiler-plugin.version>
+        <maven-surefire-plugin.version>2.18.1</maven-surefire-plugin.version>
+        <maven-javadoc-plugin.version>2.10.3</maven-javadoc-plugin.version>
     </properties>
 
     <scm>
@@ -68,17 +73,6 @@
         </developer>
     </developers>
 
-    <contributors>
-        <contributor>
-            <name>Becca Gaspard</name>
-            <url>https://github.com/beccagaspard</url>
-        </contributor>
-        <contributor>
-            <name>Drem Darios</name>
-            <url>https://github.com/drem-darios</url>
-        </contributor>
-    </contributors>
-
     <licenses>
         <license>
             <name>MIT License</name>
@@ -97,6 +91,18 @@
             <dependency>
                 <groupId>org.easyrules</groupId>
                 <artifactId>easyrules-jmx</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.easyrules</groupId>
+                <artifactId>easyrules-quartz</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.easyrules</groupId>
+                <artifactId>easyrules-spring</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

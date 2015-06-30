@@ -29,7 +29,9 @@ import org.easyrules.api.RuleListener;
 import org.easyrules.api.RulesEngine;
 import org.easyrules.util.Utils;
 
-import java.util.*;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -47,32 +49,38 @@ class DefaultRulesEngine implements RulesEngine {
     private static final Logger LOGGER = Logger.getLogger(RulesEngine.class.getName());
 
     /**
+     * The engine name.
+     */
+    protected String name;
+
+    /**
      * The rules set.
      */
-    private Set<Rule> rules;
+    protected Set<Rule> rules;
 
     /**
      * Parameter to skip next applicable rules when a rule is applied.
      */
-    private boolean skipOnFirstAppliedRule;
+    protected boolean skipOnFirstAppliedRule;
 
     /**
      * Parameter to skip next applicable rules when a rule has failed.
      */
-    private boolean skipOnFirstFailedRule;
+    protected boolean skipOnFirstFailedRule;
 
     /**
      * Parameter to skip next rules if priority exceeds a user defined threshold.
      */
-    private int rulePriorityThreshold;
+    protected int rulePriorityThreshold;
 
     /**
      * The registered rule listeners.
      */
     private List<RuleListener> ruleListeners;
 
-    DefaultRulesEngine(boolean skipOnFirstAppliedRule, boolean skipOnFirstFailedRule,
-                       int rulePriorityThreshold, List<RuleListener> ruleListeners, boolean silentMode) {
+    DefaultRulesEngine(final String name, final boolean skipOnFirstAppliedRule, final boolean skipOnFirstFailedRule,
+                       final int rulePriorityThreshold, final List<RuleListener> ruleListeners, final boolean silentMode) {
+        this.name = name;
         rules = new TreeSet<Rule>();
         this.skipOnFirstAppliedRule = skipOnFirstAppliedRule;
         this.skipOnFirstFailedRule = skipOnFirstFailedRule;
@@ -84,12 +92,17 @@ class DefaultRulesEngine implements RulesEngine {
     }
 
     @Override
-    public void registerRule(Object rule) {
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public void registerRule(final Object rule) {
         rules.add(asRule(rule));
     }
 
     @Override
-    public void unregisterRule(Object rule) {
+    public void unregisterRule(final Object rule) {
         rules.remove(asRule(rule));
     }
 
@@ -159,19 +172,19 @@ class DefaultRulesEngine implements RulesEngine {
 
     }
 
-    private void triggerListenersOnFailure(Rule rule, Exception exception) {
+    private void triggerListenersOnFailure(final Rule rule, final Exception exception) {
         for (RuleListener ruleListener : ruleListeners) {
             ruleListener.onFailure(rule, exception);
         }
     }
 
-    private void triggerListenersOnSuccess(Rule rule) {
+    private void triggerListenersOnSuccess(final Rule rule) {
         for (RuleListener ruleListener : ruleListeners) {
             ruleListener.onSuccess(rule);
         }
     }
 
-    private void triggerListenersBeforeExecute(Rule rule) {
+    private void triggerListenersBeforeExecute(final Rule rule) {
         for (RuleListener ruleListener : ruleListeners) {
             ruleListener.beforeExecute(rule);
         }
@@ -183,7 +196,7 @@ class DefaultRulesEngine implements RulesEngine {
         LOGGER.log(Level.INFO, "Skip on first failed rule: {0}", skipOnFirstFailedRule);
     }
 
-    private Rule asRule(Object rule) {
+    private Rule asRule(final Object rule) {
         Rule result;
         if (Utils.getInterfaces(rule).contains(Rule.class)) {
             result = (Rule) rule;
@@ -191,6 +204,11 @@ class DefaultRulesEngine implements RulesEngine {
             result = RuleProxy.asRule(rule);
         }
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return name;
     }
 
 }

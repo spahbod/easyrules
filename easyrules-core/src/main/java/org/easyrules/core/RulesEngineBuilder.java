@@ -13,6 +13,8 @@ import java.util.List;
  */
 public class RulesEngineBuilder {
 
+    private String name;
+
     private boolean skipOnFirstAppliedRule;
 
     private boolean skipOnFirstFailedRule;
@@ -32,35 +34,41 @@ public class RulesEngineBuilder {
         skipOnFirstFailedRule = false;
         ruleListeners = new ArrayList<RuleListener>();
         rulePriorityThreshold = Utils.DEFAULT_RULE_PRIORITY_THRESHOLD;
+        name = Utils.DEFAULT_ENGINE_NAME;
     }
 
-    public RulesEngineBuilder withSkipOnFirstAppliedRule(boolean skipOnFirstAppliedRule) {
+    public RulesEngineBuilder named(final String name) {
+        this.name = name;
+        return this;
+    }
+
+    public RulesEngineBuilder withSkipOnFirstAppliedRule(final boolean skipOnFirstAppliedRule) {
         this.skipOnFirstAppliedRule = skipOnFirstAppliedRule;
         return this;
     }
 
-    public RulesEngineBuilder withSkipOnFirstFailedRule(boolean skipOnFirstFailedRule) {
+    public RulesEngineBuilder withSkipOnFirstFailedRule(final boolean skipOnFirstFailedRule) {
         this.skipOnFirstFailedRule = skipOnFirstFailedRule;
         return this;
     }
 
-    public RulesEngineBuilder withRulePriorityThreshold(int rulePriorityThreshold) {
+    public RulesEngineBuilder withRulePriorityThreshold(final int rulePriorityThreshold) {
         this.rulePriorityThreshold = rulePriorityThreshold;
         return this;
     }
 
-    public RulesEngineBuilder withRuleListener(RuleListener ruleListener) {
+    public RulesEngineBuilder withRuleListener(final RuleListener ruleListener) {
         this.ruleListeners.add(ruleListener);
         return this;
     }
 
-    public RulesEngineBuilder withSilentMode(boolean silentMode) {
+    public RulesEngineBuilder withSilentMode(final boolean silentMode) {
         this.silentMode = silentMode;
         return this;
     }
 
     public DefaultRulesEngine build() {
-        return new DefaultRulesEngine(skipOnFirstAppliedRule, skipOnFirstFailedRule, rulePriorityThreshold,
+        return new DefaultRulesEngine(name, skipOnFirstAppliedRule, skipOnFirstFailedRule, rulePriorityThreshold,
                 ruleListeners, silentMode);
     }
 

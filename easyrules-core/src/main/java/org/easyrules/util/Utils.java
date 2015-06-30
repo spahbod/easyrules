@@ -7,6 +7,7 @@ import java.util.logging.Handler;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
+import static java.lang.String.format;
 import static java.util.Arrays.asList;
 
 /**
@@ -14,12 +15,17 @@ import static java.util.Arrays.asList;
  *
  * @author Mahmoud Ben Hassine (mahmoud@benhassine.fr)
  */
-public class Utils {
+public final class Utils {
 
     /**
      * Default rule name.
      */
     public static final String DEFAULT_RULE_NAME = "rule";
+
+    /**
+     * Default engine name.
+     */
+    public static final String DEFAULT_ENGINE_NAME = "engine";
 
     /**
      * Default rule description.
@@ -50,7 +56,7 @@ public class Utils {
         }
     }
 
-    private static void muteLogger(String logger) {
+    private static void muteLogger(final String logger) {
         Logger.getLogger(logger).setUseParentHandlers(false);
         Handler[] handlers = Logger.getLogger(logger).getHandlers();
         for (Handler handler : handlers) {
@@ -58,14 +64,20 @@ public class Utils {
         }
     }
 
-    public static List<Class> getInterfaces(Object rule) {
+    public static List<Class> getInterfaces(final Object rule) {
         List<Class> interfaces = new ArrayList<Class>();
         Class clazz = rule.getClass();
-        while(clazz.getSuperclass() != null) {
+        while (clazz.getSuperclass() != null) {
             interfaces.addAll(asList(clazz.getInterfaces()));
             clazz = clazz.getSuperclass();
         }
         return interfaces;
+    }
+
+    public static void checkNotNull(final Object argument, final String argumentName) {
+        if (argument == null) {
+            throw new IllegalArgumentException(format("The %s must not be null", argumentName));
+        }
     }
 
 }
