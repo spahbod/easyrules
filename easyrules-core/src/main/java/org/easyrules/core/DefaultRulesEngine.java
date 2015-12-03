@@ -24,16 +24,18 @@
 
 package org.easyrules.core;
 
+import org.easyrules.annotation.Context;
 import org.easyrules.api.Rule;
 import org.easyrules.api.RuleListener;
 import org.easyrules.api.RulesEngine;
 import org.easyrules.util.Utils;
 
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.lang.reflect.Field;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static java.lang.String.format;
 
 /**
  * Default {@link org.easyrules.api.RulesEngine} implementation.
@@ -59,6 +61,11 @@ class DefaultRulesEngine implements RulesEngine {
     protected Set<Rule> rules;
 
     /**
+     * The engine context.
+     */
+    protected Map<String, Object> context;
+
+    /**
      * Parameter to skip next applicable rules when a rule is applied.
      */
     protected boolean skipOnFirstAppliedRule;
@@ -82,6 +89,7 @@ class DefaultRulesEngine implements RulesEngine {
                        final int rulePriorityThreshold, final List<RuleListener> ruleListeners, final boolean silentMode) {
         this.name = name;
         this.rules = new TreeSet<>();
+        this.context = new HashMap<>();
         this.skipOnFirstAppliedRule = skipOnFirstAppliedRule;
         this.skipOnFirstFailedRule = skipOnFirstFailedRule;
         this.rulePriorityThreshold = rulePriorityThreshold;
@@ -94,6 +102,35 @@ class DefaultRulesEngine implements RulesEngine {
     @Override
     public String getName() {
         return name;
+    }
+
+    /**
+     * Add context object to the rules engine.
+     *
+     * @param key   the unique object key
+     * @param value the object value
+     */
+    @Override
+    public void addContext(String key, Object value) {
+        context.put(key, value);
+    }
+
+    /**
+     * Remove an object from the engine's context.
+     *
+     * @param key the object key
+     */
+    @Override
+    public void removeContext(String key) {
+        context.remove(key);
+    }
+
+    /**
+     * Clear rules engine context.
+     */
+    @Override
+    public void clearContext() {
+        context.clear();
     }
 
     @Override
@@ -149,6 +186,8 @@ class DefaultRulesEngine implements RulesEngine {
                 break;
             }
 
+            injectContext(rule);
+
             if (rule.evaluate()) {
                 LOGGER.log(Level.INFO, "Rule ''{0}'' triggered.", ruleName);
                 try {
@@ -162,7 +201,7 @@ class DefaultRulesEngine implements RulesEngine {
                         break;
                     }
                 } catch (Exception exception) {
-                    LOGGER.log(Level.SEVERE, String.format("Rule '%s' performed with error.", ruleName), exception);
+                    LOGGER.log(Level.SEVERE, format("Rule '%s' performed with error.", ruleName), exception);
                     triggerListenersOnFailure(rule, exception);
                     if (skipOnFirstFailedRule) {
                         LOGGER.info("Next rules will be skipped since parameter skipOnFirstFailedRule is set to true");
@@ -175,6 +214,24 @@ class DefaultRulesEngine implements RulesEngine {
 
         }
 
+    }
+
+    private void injectContext(final Rule rule) {
+        Field[] fields = rule.getClass().getFields();
+        for (Field field : fields) {
+            if (field.isAnnotationPresent(Context.class)) {
+                String key = field.getAnnotation(Context.class).key();
+                Object value = key != null && !key.isEmpty() ? context.get(key) : context.get(field.getName());
+                try {
+                    boolean accessible = field.isAccessible();
+                    field.setAccessible(true);
+                    field.set(rule, value);
+                    field.setAccessible(accessible);
+                } catch (Exception e) {
+                    throw new RuntimeException(format("Unable to set context object on field %s in rule '%s'", field.getName(), rule.getName()), e);
+                }
+            }
+        }
     }
 
     private void triggerListenersOnFailure(final Rule rule, final Exception exception) {

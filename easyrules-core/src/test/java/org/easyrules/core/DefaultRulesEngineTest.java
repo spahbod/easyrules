@@ -1,9 +1,6 @@
 package org.easyrules.core;
 
-import org.easyrules.annotation.Action;
-import org.easyrules.annotation.Condition;
-import org.easyrules.annotation.Priority;
-import org.easyrules.annotation.Rule;
+import org.easyrules.annotation.*;
 import org.easyrules.api.RulesEngine;
 import org.junit.After;
 import org.junit.Before;
@@ -124,6 +121,17 @@ public class DefaultRulesEngineTest {
                 .containsExactly(rule, anotherRule);
     }
 
+    @Test
+    public void testContextInjection() throws Exception {
+        RuleWithContext ruleWithContext = new RuleWithContext();
+        rulesEngine.registerRule(ruleWithContext);
+        rulesEngine.addContext("value", 50);
+
+        rulesEngine.fireRules();
+
+        assertThat(ruleWithContext.isExecuted()).isFalse();
+    }
+
     @After
     public void clearRules() {
         rulesEngine.clearRules();
@@ -188,6 +196,33 @@ public class DefaultRulesEngineTest {
         @Action(order = 2)
         public void action2() throws Exception {
             // no op
+        }
+    }
+
+    @Rule
+    public class RuleWithContext {
+
+        private boolean executed;
+
+        @Context //(key = "foo")
+        private int value;
+
+        @Condition
+        public boolean condition() {
+            return value > 100;
+        }
+
+        @Action
+        public void action() throws Exception {
+            executed = true;
+        }
+
+        public boolean isExecuted() {
+            return executed;
+        }
+
+        public void setValue(Integer value) {
+            this.value = value;
         }
     }
 

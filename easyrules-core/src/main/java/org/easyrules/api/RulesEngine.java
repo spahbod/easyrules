@@ -41,6 +41,26 @@ public interface RulesEngine {
     String getName();
 
     /**
+     * Add context object to the rules engine.
+     *
+     * @param key   the unique object key
+     * @param value the object value
+     */
+    void addContext(String key, Object value);
+
+    /**
+     * Remove an object from the engine's context.
+     *
+     * @param key the object key
+     */
+    void removeContext(String key);
+
+    /**
+     * Clear rules engine context.
+     */
+    void clearContext();
+
+    /**
      * Register a rule in the rules engine registry.
      *
      * @param rule the rule to register
